@@ -1,0 +1,144 @@
+$pinkText: rgb(253, 51, 253);
+
+.car {
+  border-bottom: 2px dashed rgb(44, 225, 238);
+  &__row {
+    display: flex;
+    &:not(:last-child) {
+      margin-bottom: 15px;
+    }
+  }
+  &__row--third {
+    justify-content: flex-end;
+    position: relative;
+  }
+  &__name {
+    color: rgb(44, 225, 238);
+  }
+  &__button {
+    width: 80px;
+    margin-right: 8px;
+    padding: 5px 0;
+    border-radius: 10px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  &__action {
+    width: 20px;
+    height: 20px;
+    margin-right: 4px;
+    border-radius: 6px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    cursor: pointer;
+    background-color: transparent;
+    transition: all 0.3s ease;
+  }
+  &__action-start {
+    color: rgb(49, 250, 8);
+    box-shadow:
+      inset 0 0 0.25em 1px rgb(49, 250, 8),
+      0 0 0.25em 1px rgb(49, 250, 8);
+    &:hover {
+      background-color: rgb(48, 46, 46);
+      color: rgb(70, 153, 53);
+      box-shadow:
+        inset 0 0 0.25em 1px rgb(70, 153, 53),
+        0 0 0.25em 1px rgb(70, 153, 53);
+    }
+    &:active {
+      color: rgb(38, 83, 29);
+      box-shadow:
+        inset 0 0 0.25em 1px rgb(38, 83, 29),
+        0 0 0.25em 1px rgb(38, 83, 29);
+    }
+    &.disabled,
+    &.active {
+      pointer-events: none;
+      color: rgb(38, 83, 29);
+      box-shadow:
+        inset 0 0 0.25em 1px rgb(38, 83, 29),
+        0 0 0.25em 1px rgb(38, 83, 29);
+    }
+  }
+  &__action-stop {
+    color: rgb(250, 8, 8);
+    box-shadow:
+      inset 0 0 0.25em 1px rgb(250, 8, 8),
+      0 0 0.25em 1px rgb(250, 8, 8);
+    &:hover {
+      background-color: rgb(48, 46, 46);
+      color: rgb(187, 35, 35);
+      box-shadow:
+        inset 0 0 0.25em 1px rgb(187, 35, 35),
+        0 0 0.25em 1px rgb(187, 35, 35);
+    }
+    &:active {
+      color: rgb(116, 21, 21);
+      box-shadow:
+        inset 0 0 0.25em 1px rgb(116, 21, 21),
+        0 0 0.25em 1px rgb(116, 21, 21);
+    }
+    &.disabled,
+    &.active {
+      pointer-events: none;
+      color: rgb(116, 21, 21);
+      box-shadow:
+        inset 0 0 0.25em 1px rgb(116, 21, 21),
+        0 0 0.25em 1px rgb(116, 21, 21);
+    }
+  }
+  &__icon {
+    position: absolute;
+    width: 80px;
+    height: 40px;
+    top: 0;
+    left: 0;
+  }
+  &__icon--moving {
+    animation-name: slideToLeft;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+    @media (max-width: 780px) {
+      animation-name: slideToLeftMediumScreenWidth;
+    }
+  }
+  &__icon--paused {
+    animation-play-state: paused;
+  }
+  @keyframes slideToLeft {
+    0% {
+      left: 0;
+    }
+    100% {
+      left: 85%;
+    }
+  }
+  @keyframes slideToLeftMediumScreenWidth {
+    0% {
+      left: 0;
+    }
+    100% {
+      left: 82%;
+    }
+  }
+  &__icon svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__finish {
+    width: 50px;
+    height: 40px;
+    margin-right: 80px;
+  }
+}

@@ -1,0 +1,68 @@
+.winners {
+  padding: 20px 0;
+  color: rgb(253, 51, 253);
+
+  &__container {
+    display: flex;
+    flex-direction: column;
+  }
+  &__management {
+    margin-bottom: 20px;
+    max-width: 350px;
+  }
+  &__winners-block {
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+  }
+  &__header {
+    margin-bottom: 15px;
+    font-size: 2rem;
+  }
+  &__page-number {
+    font-size: 1.6rem;
+    display: inline-block;
+    margin-bottom: 10px;
+  }
+  &__page-control-block {
+    display: flex;
+    gap: 10px;
+  }
+  &__button {
+    padding: 8px 0;
+    width: 70px;
+    border-radius: 10px;
+  }
+}
+
+.table {
+  &__row {
+    display: flex;
+    align-items: center;
+    display: flex;
+    border-bottom: 1px dashed chartreuse;
+    &:not(:last-child) {
+      margin-bottom: 10px;
+    }
+  }
+  &__column {
+    text-align: center;
+    font-size: 1.2rem;
+    padding: 0 3px;
+  }
+  &__column-1 {
+    flex: 0 1 10%;
+  }
+  &__column-2 {
+    flex: 0 1 33%;
+  }
+  &__column-3 {
+    flex: 0 1 33%;
+  }
+  &__column-4 {
+    flex: 0 1 12%;
+  }
+  &__column-5 {
+    flex: 0 1 12%;
+  }
+}

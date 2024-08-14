@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&display=swap');
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+input,
+button,
+textarea {
+  font-family: inherit;
+}
+
+input::-ms-clear {
+  display: none;
+}
+
+.lock {
+  overflow: hidden;
+}
+body,
+html {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: 'Black Ops One', system-ui;
+}
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 10px;
+}
+.bg {
+  position: relative;
+}
+.bg img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+button {
+  cursor: pointer;
+  border-style: none;
+  color: rgb(235, 30, 218);
+  background-color: rgba(31, 30, 30, 0.616);
+  box-shadow:
+    inset 0 0 0.25em 1px rgb(235, 30, 218),
+    0 0 0.25em 1px rgb(235, 30, 218);
+  transition: all 0.3s ease;
+  &:hover {
+    background-color: rgb(48, 46, 46);
+    color: rgb(171, 41, 197);
+    box-shadow:
+      inset 0 0 0.25em 1px rgb(171, 41, 197),
+      0 0 0.25em 1px rgb(171, 41, 197);
+  }
+  &.disabled,
+  &:active {
+    color: rgb(84, 18, 97);
+    box-shadow:
+      inset 0 0 0.25em 1px rgb(84, 18, 97),
+      0 0 0.25em 1px rgb(84, 18, 97);
+  }
+  &.disabled {
+    pointer-events: none;
+  }
+}
+.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+.winner-window {
+  position: fixed;
+  top: 0;
+  left: 0;
+  margin: 0 auto;
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.61);
+
+  span {
+    display: inline-block;
+    margin: 0 auto;
+    width: 400px;
+
+    font-size: 3rem;
+    color: rgb(240, 226, 33);
+    text-shadow: 0 0 0.35em rgb(162, 13, 248);
+    transition: all 0.3s ease;
+    text-align: center;
+  }
+}

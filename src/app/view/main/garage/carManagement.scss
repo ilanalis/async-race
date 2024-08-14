@@ -1,0 +1,31 @@
+.management {
+  &__create-update {
+    position: relative;
+    margin-bottom: 10px;
+
+    display: flex;
+    gap: 8px;
+  }
+  &__cars-control-panel {
+    display: flex;
+    gap: 10px;
+  }
+  &__text-input {
+    min-height: 100%;
+    padding: 3px 8px;
+    border-radius: 10px;
+
+    color: rgb(236, 223, 235);
+    background-color: rgba(212, 208, 203, 0.356);
+    border-color: rgb(235, 30, 218);
+    letter-spacing: 0.05rem;
+  }
+  &__color-input {
+    border-color: rgb(235, 30, 218);
+  }
+  &__button {
+    padding: 5px 0;
+    border-radius: 10px;
+    flex: 1 0 auto;
+  }
+}

@@ -1,0 +1,44 @@
+.garage {
+  padding: 20px 0;
+  color: rgb(253, 51, 253);
+
+  &__container {
+    display: flex;
+    flex-direction: column;
+  }
+  &__management {
+    margin-bottom: 20px;
+    max-width: 350px;
+  }
+  &__cars-block {
+    display: flex;
+    flex-direction: column;
+  }
+  &__header {
+    margin-bottom: 15px;
+    font-size: 2rem;
+  }
+  &__page-number {
+    font-size: 1.6rem;
+    display: inline-block;
+    margin-bottom: 10px;
+  }
+  &__cars-list {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  &__car {
+    margin-bottom: 20px;
+    padding-bottom: 3px;
+  }
+  &__page-control-block {
+    display: flex;
+    gap: 10px;
+  }
+  &__button {
+    padding: 8px 0;
+    width: 70px;
+    border-radius: 10px;
+  }
+}
