@@ -24,7 +24,7 @@ export default class WinnersApi extends Api {
   }
 
   async getWinnersData(winners: WinnerObject[]): Promise<WinnerObject[]> {
-    const winnersData = await winners.map(async (winner: WinnerObject) => {
+    const winnersData = winners.map(async (winner: WinnerObject) => {
       const carData = await this.carsApi.getCar(String(winner.id));
       const winnerData: WinnerObject = {
         name: carData.name,
