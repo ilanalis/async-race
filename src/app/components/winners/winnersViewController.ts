@@ -1,5 +1,6 @@
 import State from '../../state/state';
 import { WinnerObject } from '../../types';
+import { maxWinnersCountOnPage } from '../../utils/const';
 import WinnerView from '../../view/main/winners/winnerView';
 import WinnersView from '../../view/main/winners/winnersView';
 
@@ -38,10 +39,7 @@ export default class WinnersViewController {
   controlPageButtonsEnabling(state: State) {
     const prevPageButton = this.winnersView.prevPageButton;
     const nextPageButton = this.winnersView.nextPageButton;
-    const portionCount = Math.ceil(
-      state.winnersCount / state.maxWinnersCountOnPage
-    );
-    console.log(state.winnersCount, state.maxWinnersCountOnPage);
+    const portionCount = Math.ceil(state.winnersCount / maxWinnersCountOnPage);
     if (state.currentWinnersPage === 1) {
       if (!prevPageButton?.classList.contains('disabled')) {
         this.disableButton(prevPageButton);

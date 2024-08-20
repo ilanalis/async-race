@@ -2,6 +2,7 @@ import State from '../../state/state';
 import { CarObject } from '../../types';
 import GarageView from '../../view/main/garage/garageView';
 import CarView from '../../view/main/garage/carView';
+import { maxCarCountOnPage } from '../../utils/const';
 
 export default class GarageViewController<T extends GarageView> {
   protected garageView: GarageView;
@@ -47,7 +48,7 @@ export default class GarageViewController<T extends GarageView> {
   controlPageButtonsEnabling(state: State) {
     const prevPageButton = this.garageView.prevPageButton;
     const nextPageButton = this.garageView.nextPageButton;
-    const portionCount = Math.ceil(state.carsCount / state.maxCarCountOnPage);
+    const portionCount = Math.ceil(state.carsCount / maxCarCountOnPage);
 
     if (state.currentPage === 1) {
       if (!prevPageButton?.classList.contains('disabled')) {
