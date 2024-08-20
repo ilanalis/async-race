@@ -3,11 +3,6 @@ import { CarObject } from '../../types';
 import GarageView from '../../view/main/garage/garageView';
 import CarView from '../../view/main/garage/carView';
 
-interface CarData {
-  velocity: number;
-  distance: number;
-}
-
 export default class GarageViewController<T extends GarageView> {
   protected garageView: GarageView;
   protected winnerWindow: HTMLElement;
@@ -107,7 +102,8 @@ export default class GarageViewController<T extends GarageView> {
         : '#000000';
     }
   }
-  moveCarIcon(carIcon: HTMLElement | null, carData: CarData) {
+  moveCarIcon(carIcon: HTMLElement | null, carData: CarObject) {
+    if (!carData.distance || !carData.velocity) return;
     const carSpeed = Math.round(carData.distance / carData.velocity);
     if (carIcon) {
       carIcon.style.animationDuration = `${carSpeed}ms`;

@@ -4,36 +4,41 @@ import GarageController from './garageViewController';
 import CarManagement from './carManagement';
 import GaragePageController from './garagePageController';
 import Api from '../../api/api';
+import WinnersApi from '../../api/winners-api';
+import CarsApi from '../../api/cars-api';
 
 export default class GarageActions<T extends GarageView> {
   protected garageView: T;
   protected state: State;
   protected garageViewController: GarageController<GarageView>;
   protected garagePageController: GaragePageController;
-  protected api: Api;
+  protected carsApi: CarsApi;
+  protected winnersApi: WinnersApi;
+
   protected carManagement: CarManagement;
 
   constructor(view: T, state: State, winnerWindow: HTMLElement) {
-    this.api = new Api();
+    this.carsApi = new CarsApi();
+    this.winnersApi = new WinnersApi(this.carsApi);
     this.garageView = view;
     this.state = state;
     this.garageViewController = new GarageController(
       this.garageView,
       state,
-      winnerWindow
+      winnerWindow,
     );
     this.carManagement = new CarManagement(
       this.garageViewController,
       this.garageView,
       this.state,
       this.startCar,
-      this.stopCar.bind(this)
+      this.stopCar.bind(this),
     );
     this.garagePageController = new GaragePageController(
       this.state,
       this.garageView,
       this.garageViewController,
-      this.carManagement
+      this.carManagement,
     );
     this.addListener(view);
   }
@@ -66,7 +71,7 @@ export default class GarageActions<T extends GarageView> {
   }
   findCarElement(carId: string) {
     const foundCarElement = Array.from(
-      this.garageView.carsList.childNodes
+      this.garageView.carsList.childNodes,
     ).find((car) => {
       const carElement = car as HTMLElement;
       return carElement.id === carId;
@@ -85,10 +90,11 @@ export default class GarageActions<T extends GarageView> {
   async selectCar(target: HTMLElement) {
     const carId = this.findId(target);
     this.garageViewController.enableButton(
-      this.garageView.management.updateButton
+      this.garageView.management.updateButton,
     );
     if (carId) {
       const car = await this.state.getCar(carId);
+      if (!car) return;
       this.garageViewController.setUpdatingValue(car);
       this.state.updatingCarId = carId;
     }
@@ -106,13 +112,13 @@ export default class GarageActions<T extends GarageView> {
       this.garageViewController.disableButton(startButton as HTMLButtonElement);
 
       const carIcon = foundCarElement.querySelector(
-        '.car__icon'
+        '.car__icon',
       ) as HTMLElement;
-      const carData = await this.api.startCar(carId);
+      const carData = await this.carsApi.startCar(carId);
       this.garageViewController.moveCarIcon(carIcon, carData);
       this.garageViewController.enableButton(stopButton as HTMLButtonElement);
 
-      const isNotEngineBroken = await this.api.driveModeOn(carId);
+      const isNotEngineBroken = await this.carsApi.driveModeOn(carId);
       if (!isNotEngineBroken.success) {
         this.garageViewController.pauseCarIcon(carIcon);
       }
@@ -125,22 +131,22 @@ export default class GarageActions<T extends GarageView> {
       const startButton = foundCarElement.querySelector('.car__action-start');
       const stopButton = foundCarElement.querySelector('.car__action-stop');
       this.garageViewController.disableButton(stopButton as HTMLButtonElement);
-      await this.api.stopCar(carId);
+      await this.carsApi.stopCar(carId);
 
       const carIcon = foundCarElement.querySelector(
-        '.car__icon'
+        '.car__icon',
       ) as HTMLElement;
       this.garageViewController.moveCarIconToInitialState(carIcon);
       this.garageViewController.enableButton(startButton as HTMLButtonElement);
       const startButtons = Array.from(
-        this.garageView.carsList.querySelectorAll('.car__action-start')
+        this.garageView.carsList.querySelectorAll('.car__action-start'),
       ) as HTMLElement[];
       const foundStartButton = startButtons.some((button) =>
-        button.classList.contains('disabled')
+        button.classList.contains('disabled'),
       );
       if (!foundStartButton) {
         this.garageViewController.enableButton(
-          this.garageView.management.raceButton
+          this.garageView.management.raceButton,
         );
       }
     }

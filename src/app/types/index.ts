@@ -24,14 +24,16 @@ export interface CarObject {
   name: string;
   color: string;
   id: number;
+  velocity?: number;
+  distance?: number;
 }
 
 export interface WinnerObject {
   name: string;
   color: string;
   wins: number;
-  bestTime: number;
-  id: string;
+  id: number;
+  time: number;
 }
 export interface updatingCarObject {
   name: string;

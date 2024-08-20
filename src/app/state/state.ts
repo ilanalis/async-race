@@ -1,6 +1,8 @@
 import Api from '../api/api';
 import Car from '../view/main/garage/carView';
 import { CarObject, WinnerObject, updatingCarObject } from '../types';
+import CarsApi from '../api/cars-api';
+import WinnersApi from '../api/winners-api';
 
 const KEY_FOR_SAVE_TO_LOCALSTORAGE =
   'usersState(fd59d21d-9e17-4c69-a0d6-09c0722c3ed4)';
@@ -15,9 +17,7 @@ interface UsersState {
 
 export default class State {
   public currentPage: number = 1;
-  public maxCarCountOnPage: number = 7;
   public currentWinnersPage: number = 1;
-  public maxWinnersCountOnPage: number = 10;
   public updatingCarId: string = '';
   public lastCarId: number = 0;
   public usersState: UsersState = {};
@@ -27,9 +27,12 @@ export default class State {
   public carsCount: number = 0;
   public winnersCount: number = 0;
   public isRaceActive: Boolean = false;
-  protected api: Api;
+  protected carsApi: CarsApi;
+  protected winnersApi: WinnersApi;
+
   constructor() {
-    this.api = new Api();
+    this.carsApi = new CarsApi();
+    this.winnersApi = new WinnersApi(this.carsApi);
     this.loadState();
     window.addEventListener('beforeunload', this.saveState.bind(this));
   }
@@ -42,7 +45,7 @@ export default class State {
   saveState() {
     localStorage.setItem(
       KEY_FOR_SAVE_TO_LOCALSTORAGE,
-      JSON.stringify(this.usersState)
+      JSON.stringify(this.usersState),
     );
   }
   async start() {
@@ -53,7 +56,7 @@ export default class State {
   }
   async getCarsCount() {
     try {
-      const cars = await this.api.getCars();
+      const cars = await this.carsApi.getCars();
       this.carsCount = cars.length;
       this.lastCarId = cars[cars.length - 1].id;
     } catch (error) {
@@ -63,10 +66,7 @@ export default class State {
   async getCurrentPortionCars(page: number) {
     this.currentPage = page;
     try {
-      this.cars = await this.api.getCars(
-        this.currentPage,
-        this.maxCarCountOnPage
-      );
+      this.cars = await this.carsApi.getCars(this.currentPage);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -74,22 +74,18 @@ export default class State {
   async getCurrentPortionWinners(page: number) {
     this.currentWinnersPage = page;
     try {
-      this.winners = await this.api.getWinners(
-        this.currentWinnersPage,
-        this.maxWinnersCountOnPage
-      );
+      this.winners = await this.winnersApi.getWinners(this.currentWinnersPage);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   }
   async getWinnersCount() {
-    console.log(this.winnersCount);
-    const winners = await this.api.getWinners();
+    const winners = await this.winnersApi.getWinners();
     this.winnersCount = winners.length;
   }
   async removeCar(id: string) {
     try {
-      await this.api.removeCar(id);
+      await this.carsApi.removeCar(id);
       await this.getCarsCount();
       await this.getCurrentPortionCars(this.currentPage);
     } catch (error) {
@@ -98,7 +94,7 @@ export default class State {
   }
   async createCar(carObject: CarObject) {
     try {
-      await this.api.createCar(carObject);
+      await this.carsApi.createCar(carObject);
       await this.getCarsCount();
       await this.getCurrentPortionCars(this.currentPage);
     } catch (error) {
@@ -108,7 +104,7 @@ export default class State {
   async generateCars(cars: CarObject[]) {
     try {
       for (const car of cars) {
-        await this.api.createCar(car);
+        await this.carsApi.createCar(car);
         this.lastCarId += 1;
       }
       await this.getCarsCount();
@@ -118,7 +114,7 @@ export default class State {
   }
   async getCar(id: string) {
     try {
-      const car = await this.api.getCar(id);
+      const car = await this.carsApi.getCar(id);
       return car;
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -126,7 +122,7 @@ export default class State {
   }
   async updateCar(id: string, updatingCarObject: updatingCarObject) {
     try {
-      await this.api.updateCar(id, updatingCarObject);
+      await this.carsApi.updateCar(id, updatingCarObject);
       await this.getCarsCount();
       await this.getCurrentPortionCars(this.currentPage);
     } catch (error) {

@@ -1,4 +1,6 @@
 import Api from '../../api/api';
+import CarsApi from '../../api/cars-api';
+import WinnersApi from '../../api/winners-api';
 import State from '../../state/state';
 import { CarObject, WinnerObject } from '../../types';
 import GarageView from '../../view/main/garage/garageView';
@@ -14,7 +16,7 @@ const brands = [
   'Mercedes-Benz',
   'Audi',
   'Nissan',
-  'Hyundai'
+  'Hyundai',
 ];
 const models = [
   'F-150',
@@ -56,14 +58,15 @@ const models = [
   'X7',
   '4 Series',
   'X6',
-  '2 Series'
+  '2 Series',
 ];
 
 export default class CarManagement {
   protected state: State;
   protected garageView: GarageView;
   protected garageViewController: GarageViewController<GarageView>;
-  protected api: Api;
+  protected carsApi: CarsApi;
+  protected winnersApi: WinnersApi;
   protected startCar: Function;
   protected stopCar: Function;
   protected timeoutIndexArray: NodeJS.Timeout[];
@@ -73,9 +76,10 @@ export default class CarManagement {
     garageView: GarageView,
     state: State,
     startCar: Function,
-    stopCar: Function
+    stopCar: Function,
   ) {
-    this.api = new Api();
+    this.carsApi = new CarsApi();
+    this.winnersApi = new WinnersApi(this.carsApi);
     this.garageView = garageView;
     this.garageViewController = garageViewController;
     this.state = state;
@@ -92,31 +96,31 @@ export default class CarManagement {
   addListeners(garageView: GarageView) {
     garageView.management.creatingCarForm.addEventListener(
       'submit',
-      this.submitCreatingCar
+      this.submitCreatingCar,
     );
     garageView.management.updatingCarFrom.addEventListener(
       'submit',
-      this.submitUpdatingCar
+      this.submitUpdatingCar,
     );
     garageView.management.carsControlPanel.addEventListener(
       'click',
-      this.eventHandlers
+      this.eventHandlers,
     );
     garageView.management.carCreatingTextInput?.addEventListener(
       'keyup',
-      this.saveCreatingCarTextInput.bind(this)
+      this.saveCreatingCarTextInput.bind(this),
     );
     garageView.management.carCreatingPickColorInput?.addEventListener(
       'change',
-      this.saveCreatingCarPickColorInput.bind(this)
+      this.saveCreatingCarPickColorInput.bind(this),
     );
     garageView.management.carUpdatingTextInput?.addEventListener(
       'keyup',
-      this.saveUpdatingCarTextInput.bind(this)
+      this.saveUpdatingCarTextInput.bind(this),
     );
     garageView.management.carUpdatingPickColorInput?.addEventListener(
       'change',
-      this.saveUpdatingCarPickColorInput.bind(this)
+      this.saveUpdatingCarPickColorInput.bind(this),
     );
   }
   saveCreatingCarTextInput(event: KeyboardEvent) {
@@ -150,21 +154,22 @@ export default class CarManagement {
     this.initRace(carElements);
     let isFirstCarFinished = false;
     let isRaceStarted = false;
-    const carEngineDataArray = await this.api.startAllCars(this.state.cars);
+    const carEngineDataArray = await this.carsApi.startAllCars(this.state.cars);
     this.enableButtons(carElements, 'stop');
     const promises = carElements.map(
       async (element: HTMLElement, index: number) => {
         if (!isRaceStarted) {
           isRaceStarted = true;
           this.garageViewController.enableButton(
-            this.garageView.management.resetButton
+            this.garageView.management.resetButton,
           );
         }
         const carIcon = element.querySelector('.car__icon') as HTMLElement;
         const currentEngineData = carEngineDataArray[index];
         this.garageViewController.moveCarIcon(carIcon, currentEngineData);
+        if (!currentEngineData.distance || !currentEngineData.velocity) return;
         const carSpeed = Math.round(
-          currentEngineData.distance / currentEngineData.velocity
+          currentEngineData.distance / currentEngineData.velocity,
         );
         const currentTimeoutId: NodeJS.Timeout = setTimeout(async () => {
           if (!isFirstCarFinished) {
@@ -175,17 +180,17 @@ export default class CarManagement {
         }, carSpeed);
         this.timeoutIndexArray.push(currentTimeoutId);
         await this.handleEngine(element.id, currentTimeoutId, carIcon);
-      }
+      },
     );
     await Promise.allSettled(promises);
   }
   initRace(carElements: HTMLElement[]) {
     this.state.isRaceActive = true;
     this.garageViewController.disableButton(
-      this.garageView.management.raceButton as HTMLButtonElement
+      this.garageView.management.raceButton as HTMLButtonElement,
     );
     this.garageViewController.disableButton(
-      this.garageView.management.resetButton
+      this.garageView.management.resetButton,
     );
     this.disableButtons(carElements, 'start');
   }
@@ -194,6 +199,7 @@ export default class CarManagement {
   }
   async handleWinner(id: string, carSpeed: number) {
     const foundCar = await this.state.getCar(id);
+    if (!foundCar) return;
     this.garageViewController.openWinnerWindow(foundCar.name, carSpeed);
     this.createWinner(id, carSpeed);
   }
@@ -201,31 +207,31 @@ export default class CarManagement {
   async handleEngine(
     carId: string,
     timeoutId: NodeJS.Timeout,
-    carIcon: HTMLElement
+    carIcon: HTMLElement,
   ) {
-    const isNotEngineBroken = await this.api.driveModeOn(carId);
+    const isNotEngineBroken = await this.carsApi.driveModeOn(carId);
     if (!isNotEngineBroken.success) {
       clearTimeout(timeoutId);
       this.garageViewController.pauseCarIcon(carIcon);
     }
   }
-  createWinner(id: string, time: number) {
+  createWinner(id: string, currentTime: number) {
     const foundWinner = this.state.winners.find((winner) => {
       return String(winner.id) === id;
     });
     if (foundWinner) {
       const winnerObject = {
         wins: foundWinner.wins + 1,
-        time: foundWinner.bestTime > time ? time : foundWinner.bestTime
+        time: foundWinner.time > currentTime ? currentTime : foundWinner.time,
       };
-      this.api.updateWinner(id, winnerObject);
+      this.winnersApi.updateWinner(id, winnerObject);
     } else {
       const winnerObject = {
         id,
         wins: 1,
-        time
+        time: currentTime,
       };
-      this.api.createWinner(winnerObject);
+      this.winnersApi.createWinner(winnerObject);
     }
     this.state.getWinnersCount();
     this.state.getCurrentPortionWinners(this.state.currentWinnersPage);
@@ -250,14 +256,14 @@ export default class CarManagement {
     const carElements = this.getCarElements();
     this.disableButtons(carElements, 'stop');
     const stopPromises = carElements.map(async (element: HTMLElement) => {
-      await this.api.stopCar(element.id);
+      await this.carsApi.stopCar(element.id);
       const carIcon = element.querySelector('.car__icon') as HTMLElement;
       this.garageViewController.moveCarIconToInitialState(carIcon);
     });
     await Promise.all(stopPromises);
     this.enableButtons(carElements, 'start');
     this.garageViewController.enableButton(
-      this.garageView.management.raceButton
+      this.garageView.management.raceButton,
     );
   }
   async generateCars(target: HTMLElement) {
@@ -270,11 +276,12 @@ export default class CarManagement {
       const newCar = {
         name: carBrand + ' ' + carModel,
         color,
-        id: this.state.lastCarId + 1 + i
+        id: this.state.lastCarId + 1 + i,
       };
       cars.push(newCar);
     }
     await this.state.generateCars(cars);
+    console.log(this.state.cars);
     this.garageViewController.enableButton(target as HTMLButtonElement);
     this.state.getCarsCount();
     await this.state.getCurrentPortionCars(this.state.currentPage);
@@ -288,7 +295,7 @@ export default class CarManagement {
     const newCar = {
       name: values.textInputValue,
       color: values.colorInputValue,
-      id: this.state.lastCarId + 1
+      id: this.state.lastCarId + 1,
     };
     await this.state.createCar(newCar);
     form.reset();
@@ -301,13 +308,13 @@ export default class CarManagement {
     const values = this.getFormValues(form);
     const updatingCar = {
       name: values.textInputValue,
-      color: values.colorInputValue
+      color: values.colorInputValue,
     };
     await this.state.updateCar(this.state.updatingCarId, updatingCar);
     form.reset();
     this.updateGarageState();
     this.garageViewController.disableButton(
-      this.garageView.management.updateButton
+      this.garageView.management.updateButton,
     );
   }
 
