@@ -6,17 +6,15 @@ export default class CarsApi extends Api {
   protected controller: AbortController | null = null;
 
   async getCars(page?: number): Promise<CarObject[]> {
+    let url = baseUrl + '/garage';
+
     if (page) {
-      const url = baseUrl + `/garage?_page=${page}&_limit=${maxCarCountOnPage}`;
-      const cars = await this.makeRequest<CarObject[]>(url);
-
-      return cars;
-    } else {
-      const url = baseUrl + '/garage';
-      const cars = await this.makeRequest<CarObject[]>(url);
-
-      return cars;
+      url = baseUrl + `/garage?_page=${page}&_limit=${maxCarCountOnPage}`;
     }
+
+    const cars = await this.makeRequest<CarObject[]>(url);
+
+    return cars;
   }
 
   async removeCar(id: string) {

@@ -12,23 +12,18 @@ export default class WinnersApi extends Api {
   }
 
   async getWinners(page?: number): Promise<WinnerObject[]> {
+    let url = baseUrl + '/winners';
+
     if (page) {
-      const url =
-        baseUrl + `/winners?_page=${page}&_limit=${maxWinnersCountOnPage}`;
-      const cars = await this.makeRequest<WinnerObject[]>(url);
-
-      return this.getWinnersData(cars);
-    } else {
-      const url = baseUrl + '/winners';
-      const cars = await this.makeRequest<WinnerObject[]>(url);
-
-      return this.getWinnersData(cars);
+      url = baseUrl + `/winners?_page=${page}&_limit=${maxWinnersCountOnPage}`;
     }
+
+    const cars = await this.makeRequest<WinnerObject[]>(url);
+
+    return this.getWinnersData(cars);
   }
 
   async getWinnersData(winners: WinnerObject[]): Promise<WinnerObject[]> {
-    // const winners = await this.getWinners();
-
     const winnersData = await winners.map(async (winner: WinnerObject) => {
       const carData = await this.carsApi.getCar(String(winner.id));
       const winnerData: WinnerObject = {
