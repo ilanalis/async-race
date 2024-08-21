@@ -14,7 +14,7 @@ export default class WinnersPageController {
     state: State,
     winnersView: WinnersView,
     winnersViewController: WinnersViewController,
-    updateWinnersTableState: Function
+    updateWinnersTableState: Function,
   ) {
     this.state = state;
     this.winnersViewController = winnersViewController;
@@ -24,30 +24,46 @@ export default class WinnersPageController {
     this.getPrevPage = this.getPrevPage.bind(this);
     this.updateWinnersTableState = updateWinnersTableState;
   }
+
   addListener() {
-    this.winnersView.pageControlBlock.addEventListener('click', (event) => {
-      const target = event.target as HTMLElement;
-      if (target.closest('#prev')) {
-        this.getPrevPage();
-      } else if (target.closest('#next')) {
-        this.getNextPage();
-      }
-    });
+    this.winnersView.pageControlBlock.addEventListener(
+      'click',
+      this.eventHandler.bind(this),
+    );
   }
+
+  removeListener() {
+    this.winnersView.pageControlBlock.removeEventListener(
+      'click',
+      this.eventHandler.bind(this),
+    );
+  }
+
+  eventHandler(e: Event) {
+    const target = e.target as HTMLElement;
+    if (target.closest('#prev')) {
+      this.getPrevPage();
+    } else if (target.closest('#next')) {
+      this.getNextPage();
+    }
+  }
+
   async getPrevPage() {
     this.winnersViewController.disableButton(this.winnersView.prevPageButton);
     await this.state.getCurrentPortionWinners(
-      this.state.currentWinnersPage - 1
+      this.state.currentWinnersPage - 1,
     );
     this.updateWinnersState();
   }
+
   async getNextPage() {
     this.winnersViewController.disableButton(this.winnersView.nextPageButton);
     await this.state.getCurrentPortionWinners(
-      this.state.currentWinnersPage + 1
+      this.state.currentWinnersPage + 1,
     );
     this.updateWinnersState();
   }
+
   updateWinnersState() {
     this.winnersViewController.controlPageButtonsEnabling(this.state);
     this.winnersViewController.setPageCount(this.state.currentWinnersPage);

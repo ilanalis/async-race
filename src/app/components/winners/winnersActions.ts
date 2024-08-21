@@ -8,17 +8,22 @@ import WinnersViewController from './winnersViewController';
 export default class WinnersActions<T extends WinnersView> {
   protected view: T;
   protected winnersViewController: WinnersViewController;
-  protected winnersPageController: WinnersPageController;
+  protected winnersPageController: WinnersPageController | null = null;
   protected state: State;
   constructor(view: T, state: State) {
     this.state = state;
     this.view = view;
     this.winnersViewController = new WinnersViewController(view, state);
+
+    if (this.winnersPageController) {
+      this.winnersPageController.removeListener();
+    }
+
     this.winnersPageController = new WinnersPageController(
       state,
       view,
       this.winnersViewController,
-      this.updateWinnersTableState.bind(this)
+      this.updateWinnersTableState.bind(this),
     );
   }
   updateWinnersTableState() {

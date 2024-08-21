@@ -3,7 +3,6 @@ import GarageView from '../../view/main/garage/garageView';
 import GarageController from './garageViewController';
 import CarManagement from './carManagement';
 import GaragePageController from './garagePageController';
-import Api from '../../api/api';
 import WinnersApi from '../../api/winners-api';
 import CarsApi from '../../api/cars-api';
 
@@ -11,11 +10,11 @@ export default class GarageActions<T extends GarageView> {
   protected garageView: T;
   protected state: State;
   protected garageViewController: GarageController<GarageView>;
-  protected garagePageController: GaragePageController;
+  protected garagePageController: GaragePageController | null = null;
   protected carsApi: CarsApi;
   protected winnersApi: WinnersApi;
 
-  protected carManagement: CarManagement;
+  protected carManagement: CarManagement | null = null;
 
   constructor(view: T, state: State, winnerWindow: HTMLElement) {
     this.carsApi = new CarsApi();
@@ -27,6 +26,11 @@ export default class GarageActions<T extends GarageView> {
       state,
       winnerWindow,
     );
+
+    if (this.carManagement) {
+      this.carManagement.removeListeners(view);
+    }
+
     this.carManagement = new CarManagement(
       this.garageViewController,
       this.garageView,
@@ -34,6 +38,11 @@ export default class GarageActions<T extends GarageView> {
       this.startCar,
       this.stopCar.bind(this),
     );
+
+    if (this.garagePageController) {
+      this.garagePageController.removeListener();
+    }
+
     this.garagePageController = new GaragePageController(
       this.state,
       this.garageView,
@@ -42,33 +51,44 @@ export default class GarageActions<T extends GarageView> {
     );
     this.addListener(view);
   }
+
   addListener(view: GarageView) {
-    view.carsList.addEventListener('click', (event) => {
-      const target = event.target as HTMLElement;
-      if (target.classList.contains('car__action-start')) {
-        this.startCar(target);
-      } else if (target.classList.contains('car__action-stop')) {
-        this.stopCar(target);
-      }
-      if (target.id) {
-        switch (target.id) {
-          case 'remove':
-            this.removeAuto(target);
-            break;
-          case 'select':
-            this.selectCar(target);
-            break;
-          case 'start':
-            break;
-          default:
-            break;
-        }
-      }
-    });
+    view.carsList.addEventListener('click', this.eventHandler.bind(this));
   }
+
+  removeListener(view: GarageView) {
+    view.carsList.removeEventListener('click', this.eventHandler.bind(this));
+  }
+
+  eventHandler(e: Event) {
+    const target = e.target as HTMLElement;
+
+    if (target.classList.contains('car__action-start')) {
+      this.startCar(target);
+    } else if (target.classList.contains('car__action-stop')) {
+      this.stopCar(target);
+    }
+
+    if (target.id) {
+      switch (target.id) {
+        case 'remove':
+          this.removeAuto(target);
+          break;
+        case 'select':
+          this.selectCar(target);
+          break;
+        case 'start':
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
   findId(target: HTMLElement) {
     return target.parentElement?.parentElement?.id;
   }
+
   findCarElement(carId: string) {
     const foundCarElement = Array.from(
       this.garageView.carsList.childNodes,
@@ -84,7 +104,7 @@ export default class GarageActions<T extends GarageView> {
       await this.state.removeCar(carId);
       this.garageViewController.setCarCount(this.state.carsCount);
       this.garageViewController.controlPageButtonsEnabling(this.state);
-      this.carManagement.updateGarageState();
+      this.carManagement?.updateGarageState();
     }
   }
   async selectCar(target: HTMLElement) {

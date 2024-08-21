@@ -12,6 +12,7 @@ import WinnersActions from '../../components/winners/winnersActions';
 export default class MainView {
   public main: HTMLElement;
   public winnerWindow: HTMLElement;
+  private garageActions: GarageActions<GarageView> | null = null;
   constructor() {
     this.drawBg();
     this.main = this.drawMain();
@@ -23,28 +24,28 @@ export default class MainView {
       parentElement: document.body,
       childrenNodes: [
         img({
-          attr: { src: mainBg }
-        })
-      ]
+          attr: { src: mainBg },
+        }),
+      ],
     });
   }
   drawMain() {
     return main({
       classNames: ['main'],
-      parentElement: document.body
+      parentElement: document.body,
     });
   }
   drawWinnerWindow() {
     return div({
       classNames: ['winner-window', 'hidden'],
       parentElement: document.body,
-      childrenNodes: [span({})]
+      childrenNodes: [span({})],
     });
   }
   setContent(
     element: typeof NotFoundView | typeof GarageView | typeof WinnersView,
     state: State,
-    pageName: string
+    pageName: string,
   ) {
     const htmlElement = this.main;
     while (htmlElement.firstElementChild) {
@@ -54,7 +55,15 @@ export default class MainView {
     switch (pageName) {
       case 'garage':
         if (view instanceof GarageView) {
-          new GarageActions(view, state, this.winnerWindow);
+          if (this.garageActions) {
+            this.garageActions.removeListener(view);
+          }
+
+          this.garageActions = new GarageActions(
+            view,
+            state,
+            this.winnerWindow,
+          );
         }
         break;
       case 'winners':

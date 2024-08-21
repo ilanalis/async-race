@@ -12,6 +12,11 @@ export default class HistoryRouterHandler {
     this.handler = this.navigate.bind(this);
     window.addEventListener('popstate', this.handler);
   }
+
+  removeListener() {
+    window.removeEventListener('popstate', this.handler);
+  }
+
   navigate(urlOrEvent: string | PopStateEvent | null) {
     if (typeof urlOrEvent === 'string') {
       const url: string[] = window.location['pathname'].slice(1).split('/');

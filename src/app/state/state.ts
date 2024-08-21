@@ -36,6 +36,11 @@ export default class State {
     this.loadState();
     window.addEventListener('beforeunload', this.saveState.bind(this));
   }
+
+  removeListener() {
+    window.removeEventListener('beforeunload', this.saveState.bind(this));
+  }
+
   loadState() {
     const storageItem = localStorage.getItem(KEY_FOR_SAVE_TO_LOCALSTORAGE);
     if (storageItem) {

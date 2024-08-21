@@ -11,19 +11,28 @@ export default class App {
   protected headerView: HeaderView | null = null;
   protected mainView: MainView | null = null;
   protected router: Router | null = null;
+  protected state: State | null = null;
 
   constructor() {
     this.initialize();
   }
   async initialize() {
-    const state = new State();
-    await state.start();
-    const routes: Route[] = this.createRoutes(state);
+    if (this.state) {
+      this.state.removeListener();
+    }
+
+    this.state = new State();
+    await this.state.start();
+    const routes: Route[] = this.createRoutes(this.state);
     this.router = new Router(routes);
     this.createView();
   }
   createView() {
     if (this.router) {
+      if (this.headerView) {
+        this.headerView.removeListeners();
+      }
+
       this.headerView = new HeaderView(this.router);
       this.mainView = new MainView();
     }
@@ -39,7 +48,7 @@ export default class App {
           if (this.mainView && this.mainView.main) {
             this.setContent('garage', GarageView, state);
           }
-        }
+        },
       },
       {
         path: 'garage',
@@ -50,7 +59,7 @@ export default class App {
           if (this.mainView && this.mainView.main) {
             this.setContent('garage', GarageView, state);
           }
-        }
+        },
       },
       {
         path: 'winners',
@@ -61,7 +70,7 @@ export default class App {
           if (this.mainView && this.mainView.main) {
             this.setContent('winners', WinnersView, state);
           }
-        }
+        },
       },
       {
         path: `not-found`,
@@ -72,14 +81,14 @@ export default class App {
           if (this.mainView && this.mainView.main) {
             this.setContent('not-found', NotFoundView, state);
           }
-        }
-      }
+        },
+      },
     ];
   }
   setContent(
     page: string,
     view: typeof NotFoundView | typeof GarageView | typeof WinnersView,
-    state: State
+    state: State,
   ) {
     this.headerView?.setSelectedItem(page);
     this.mainView?.setContent(view, state, page);
