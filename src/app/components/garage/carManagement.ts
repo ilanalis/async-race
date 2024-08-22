@@ -302,7 +302,7 @@ export default class CarManagement {
       const newCar = {
         name: carBrand + ' ' + carModel,
         color,
-        id: this.state.lastCarId + 1 + i,
+        id: this.state.lastCarId ? this.state.lastCarId + 1 + i : 0,
       };
       cars.push(newCar);
     }
@@ -322,7 +322,7 @@ export default class CarManagement {
     const newCar = {
       name: values.textInputValue,
       color: values.colorInputValue,
-      id: this.state.lastCarId + 1,
+      id: this.state.lastCarId ? this.state.lastCarId + 1 : 0,
     };
     await this.state.createCar(newCar);
     form.reset();

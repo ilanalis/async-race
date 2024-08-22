@@ -105,6 +105,9 @@ export default class GarageActions<T extends GarageView> {
       this.garageViewController.setCarCount(this.state.carsCount);
       this.garageViewController.controlPageButtonsEnabling(this.state);
       this.carManagement?.updateGarageState();
+      await this.state.removeWinner(carId);
+      this.state.getWinnersCount();
+      this.state.getCurrentPortionWinners(this.state.currentWinnersPage);
     }
   }
   async selectCar(target: HTMLElement) {

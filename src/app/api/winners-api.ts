@@ -31,7 +31,7 @@ export default class WinnersApi extends Api {
         color: carData.color,
         wins: winner.wins,
         time: winner.time,
-        id: carData.id,
+        id: +carData.id,
       };
 
       return winnerData;
@@ -65,5 +65,20 @@ export default class WinnersApi extends Api {
       },
       winnerObject,
     );
+  }
+  async getWinner(id: string) {
+    const url = baseUrl + `/winners`;
+    const winners: WinnerObject[] = await this.makeRequest(url, 'GET');
+    const foundWinner = winners.find(
+      (winner: WinnerObject) => +winner.id === +id,
+    );
+
+    return foundWinner;
+  }
+
+  async removeWinner(id: string) {
+    const url = baseUrl + `/winners/${id}`;
+
+    await this.makeRequest(url, 'DELETE');
   }
 }

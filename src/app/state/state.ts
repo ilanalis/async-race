@@ -19,7 +19,7 @@ export default class State {
   public currentPage: number = 1;
   public currentWinnersPage: number = 1;
   public updatingCarId: string = '';
-  public lastCarId: number = 0;
+  public lastCarId: number | null = null;
   public usersState: UsersState = {};
 
   public cars: CarObject[] = [];
@@ -63,7 +63,11 @@ export default class State {
     try {
       const cars = await this.carsApi.getCars();
       this.carsCount = cars.length;
-      this.lastCarId = cars[cars.length - 1].id;
+      if (this.carsCount) {
+        this.lastCarId = cars[cars.length - 1].id;
+      } else {
+        this.lastCarId = null;
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -88,6 +92,16 @@ export default class State {
     const winners = await this.winnersApi.getWinners();
     this.winnersCount = winners.length;
   }
+  async removeWinner(id: string) {
+    try {
+      const foundWinner = await this.winnersApi.getWinner(id);
+      if (foundWinner) {
+        this.winnersApi.removeWinner(id);
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
   async removeCar(id: string) {
     try {
       await this.carsApi.removeCar(id);
@@ -110,7 +124,11 @@ export default class State {
     try {
       for (const car of cars) {
         await this.carsApi.createCar(car);
-        this.lastCarId += 1;
+        if (this.lastCarId) {
+          this.lastCarId += 1;
+        } else {
+          this.lastCarId = 0;
+        }
       }
       await this.getCarsCount();
     } catch (error) {
